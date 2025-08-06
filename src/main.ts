@@ -32,7 +32,7 @@ async function bootstrap() {
   });
 
   /*  */
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix(process.env.API_PREFIX ?? 'api/v1');
 
 
   /* 
