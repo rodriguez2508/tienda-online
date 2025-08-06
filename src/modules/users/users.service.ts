@@ -17,12 +17,14 @@ export class UsersService {
     return this.userRepo.save(user);
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll(): Promise<User[]> {
+    return this.userRepo.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+
+
+  async findOne(id: string): Promise<User | null> {
+    return this.userRepo.findOneBy({ id });
   }
 
   /**
