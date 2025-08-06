@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv';
 import { NextFunction, Request, Response } from 'express';
 import { join } from 'path';
 import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
 
@@ -18,6 +19,14 @@ async function bootstrap() {
   }
 
   const app = await NestFactory.create(AppModule);
+  const config = new DocumentBuilder()
+    .setTitle('Tienda Online API')
+    .setDescription('The Tienda Online API description')
+    .setVersion('1.0')
+    .addTag('tienda-online')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
 
 
   /* 
