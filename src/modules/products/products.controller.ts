@@ -4,27 +4,31 @@ import {
   Get,
   Post,
   Body,
-  Patch, // Usaremos Patch para actualizaciones parciales
+  Patch, 
   Param,
   Delete,
-  ParseUUIDPipe, // Para validar que el ID es un UUID
+  ParseUUIDPipe, 
   Query,
-  DefaultValuePipe, // Para valores por defecto en paginación
-  ParseIntPipe,   // Para convertir query params a números
+  DefaultValuePipe, 
+  ParseIntPipe,  
   HttpCode,
   HttpStatus,
+  ParseFloatPipe,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { UserRole } from '../users/entities/user.entity';
+import { Roles } from 'src/common/guard/roles.guard';
 
-@ApiTags('products') // Agrupa los endpoints en Swagger bajo "products"
+@ApiTags('products')
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
+  @Roles(UserRole.ADMIN)  // Solo admins pueden crear productos
   @ApiOperation({ summary: 'Create a new product' })
   @ApiResponse({ status: 201, description: 'The product has been successfully created.'})
   @ApiResponse({ status: 400, description: 'Bad Request.'})
@@ -38,8 +42,9 @@ export class ProductsController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('category') category?: string,
+    @Query('minPrice', ParseFloatPipe) minPrice?: number,
   ) {
-    // Construimos las opciones para TypeORM
+    
     const options = {
       take: limit,
       skip: (page - 1) * limit,
@@ -56,7 +61,8 @@ export class ProductsController {
     return this.productsService.findOne(id);
   }
 
-  @Patch(':id') // Es más común usar PATCH para actualizaciones parciales
+  @Patch(':id') 
+  @Roles(UserRole.ADMIN)  // Solo admin
   @ApiOperation({ summary: 'Update a product' })
   @ApiResponse({ status: 200, description: 'Product updated successfully.'})
   @ApiResponse({ status: 404, description: 'Product not found.'})
@@ -68,7 +74,8 @@ export class ProductsController {
   }
 
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT) // Retornar 204 No Content es una buena práctica para DELETE
+  @Roles(UserRole.ADMIN)  // Solo admin
+  @HttpCode(HttpStatus.NO_CONTENT) 
   @ApiOperation({ summary: 'Delete a product' })
   @ApiResponse({ status: 204, description: 'Product deleted successfully.'})
   @ApiResponse({ status: 404, description: 'Product not found.'})
