@@ -17,7 +17,8 @@ import {
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { Product } from './entities/product.entity';
 
 @ApiTags('products') // Agrupa los endpoints en Swagger bajo "products"
 @Controller('products')
@@ -25,15 +26,19 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new product' })
-  @ApiResponse({ status: 201, description: 'The product has been successfully created.'})
-  @ApiResponse({ status: 400, description: 'Bad Request.'})
+  @ApiOperation({ summary: 'Crear un nuevo producto' })
+  @ApiResponse({ status: 201, description: 'El producto ha sido creado exitosamente.', type: Product })
+  @ApiResponse({ status: 400, description: 'Solicitud incorrecta.'})
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'List all products with pagination and filtering' })
+  @ApiOperation({ summary: 'Listar todos los productos con paginación y filtrado' })
+  @ApiQuery({ name: 'page', required: false, description: 'Número de página' })
+  @ApiQuery({ name: 'limit', required: false, description: 'Cantidad de items por página' })
+  @ApiQuery({ name: 'category', required: false, description: 'Filtrar por categoría' })
+  @ApiResponse({ status: 200, description: 'Lista de productos.', type: [Product] })
   findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
@@ -49,17 +54,17 @@ export class ProductsController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a single product by ID' })
-  @ApiResponse({ status: 200, description: 'Product found.'})
-  @ApiResponse({ status: 404, description: 'Product not found.'})
+  @ApiOperation({ summary: 'Obtener un producto por ID' })
+  @ApiResponse({ status: 200, description: 'Producto encontrado.', type: Product })
+  @ApiResponse({ status: 404, description: 'Producto no encontrado.'})
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.productsService.findOne(id);
   }
 
   @Patch(':id') // Es más común usar PATCH para actualizaciones parciales
-  @ApiOperation({ summary: 'Update a product' })
-  @ApiResponse({ status: 200, description: 'Product updated successfully.'})
-  @ApiResponse({ status: 404, description: 'Product not found.'})
+  @ApiOperation({ summary: 'Actualizar un producto' })
+  @ApiResponse({ status: 200, description: 'Producto actualizado exitosamente.', type: Product })
+  @ApiResponse({ status: 404, description: 'Producto no encontrado.'})
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateProductDto: UpdateProductDto,
@@ -69,9 +74,9 @@ export class ProductsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT) // Retornar 204 No Content es una buena práctica para DELETE
-  @ApiOperation({ summary: 'Delete a product' })
-  @ApiResponse({ status: 204, description: 'Product deleted successfully.'})
-  @ApiResponse({ status: 404, description: 'Product not found.'})
+  @ApiOperation({ summary: 'Eliminar un producto' })
+  @ApiResponse({ status: 204, description: 'Producto eliminado exitosamente.'})
+  @ApiResponse({ status: 404, description: 'Producto no encontrado.'})
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.productsService.remove(id);
   }
