@@ -35,7 +35,6 @@ async function bootstrap() {
    */
   app.enableCors({
     origin: [
-      'https://linki-cuba.onrender.com',
       ...(process.env.NODE_ENV !== 'production' ? ['http://localhost:3000', 'http://localhost:4200',] : []),
     ],
   });
