@@ -18,9 +18,11 @@ export class User {
   @Column({ default: 'user' })
   role: string;
 
-  @OneToMany(() => Order, (order) => order.user)
-  orders: Order[];
-
+//   @OneToMany(() => Order, (order) => order.user)
+//   orders: Order[];
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  updatedAt: Date;
 }
