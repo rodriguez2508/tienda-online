@@ -1,25 +1,23 @@
-
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, ManyToOne, JoinColumn, Column, PrimaryGeneratedColumn } from 'typeorm';
 import { Order } from './order.entity';
-import { Product } from './../../products/entities/product.entity';
+import { Product } from '../../products/entities/product.entity';
 
 @Entity()
 export class OrderItem {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-    @ManyToOne(() => Order, (order) => order.orderItems)
-    order: Order;
+  @ManyToOne(() => Product)
+  @JoinColumn({ name: 'product_id' })
+  product: Product;
 
-    @Column()
-    orderId: string;
+  @ManyToOne(() => Order, (order) => order.items)
+  @JoinColumn({ name: 'order_id' })
+  order: Order;
 
-    @ManyToOne(() => Product, (product) => product.orderItems)
-    product: Product;
+  @Column({ type: 'int' })
+  quantity: number;
 
-    @Column()
-    productId: string;
-
-    @Column('int')
-    quantity: number;
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  price: number; // Precio en el momento de la compra (por si cambia después)
 }
