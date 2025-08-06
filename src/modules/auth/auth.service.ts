@@ -24,13 +24,15 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto) {
+    console.log("🚀 ~ AuthService ~ login ~ loginDto:", loginDto)
     const user = await this.usersService.findOneByEmail(loginDto.email);
+    console.log("🚀 ~ AuthService ~ login ~ user:", user)
     if (!user || !(await bcrypt.compare(loginDto.password, user.password))) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
     const payload = { sub: user.id, email: user.email, role: user.role };
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: await this.jwtService.signAsync(payload),
     };
   }
 }
